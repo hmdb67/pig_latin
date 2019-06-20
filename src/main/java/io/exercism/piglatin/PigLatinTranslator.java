@@ -1,74 +1,65 @@
 package io.exercism.piglatin;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-public class PigLatinTranslator {
+class PigLatinTranslator {
 
+    String translate(String wordToTranslate) {
+        List<String> phrase = new ArrayList<>();
 
-    public String translate(String wordToTranslate) {
-
-        String bodyOfWord = new String();
-        String preFixWord = new String();
-        String posFix = "ay";
-        String phrase ="";
-
-        List<String> sentence = Arrays.asList(wordToTranslate.split(" "));
+        String[] sentence = wordToTranslate.split(" ");
 
         for (String word : sentence) {
-
-            Integer preFixPosition;
-
-            if (wordStartsWithConsonant(word)) {
-                if (word.startsWith("ch") ||
-                    word.startsWith("th") ||
-                    word.startsWith("sch") ||
-                    word.startsWith("rh")) {
-
-                    if (word.startsWith("thr") || word.startsWith("sch")) {
-                        bodyOfWord = word.substring(3);
-                        preFixWord = word.substring(0, 3);
-                    } else {
-                        bodyOfWord = word.substring(2);
-                        preFixWord = word.substring(0, 2);
-                    }
-
-                } else {
-                    preFixPosition = word.indexOf("qu");
-                    if (preFixPosition == 0) {
-                        bodyOfWord = word.substring(2);
-                        preFixWord = word.substring(0, 2);
-                    } else if (preFixPosition == 1) {
-                        bodyOfWord = word.substring(3);
-                        preFixWord = word.substring(0, 3);
-                    } else {
-                        bodyOfWord = word.substring(1);
-                        preFixWord = word.substring(0, 1);
-                    }
-                }
-                bodyOfWord = bodyOfWord + preFixWord + posFix;
-            } else {
-                bodyOfWord = word + posFix;
-            }
-
-            if (phrase.isEmpty()){
-                phrase=bodyOfWord;
-
-            }else {
-                phrase = phrase + " " + bodyOfWord;
-            }
-
+            String bodyOfWord = translateWord(word);
+            phrase.add(bodyOfWord);
         }
 
-        return phrase;
+        return String.join(" ", phrase);
     }
 
-    private boolean wordStartsWithConsonant(String wordToTranslate) {
+    private String translateWord(String word) {
+        String posFix = "ay";
 
-        if (wordToTranslate.startsWith("xr") || wordToTranslate.startsWith("yt") || wordToTranslate.startsWith("a") || wordToTranslate.startsWith("e") || wordToTranslate.startsWith("i") || wordToTranslate.startsWith("o") || wordToTranslate.startsWith("u")) {
-            return false;
+        if (wordStartsWithVowelSound(word)) {
+            return word + posFix;
         }
-        return true;
+
+        int stringDividerPosition = getStringDividerPosition(word);
+        String bodyOfWord = word.substring(stringDividerPosition);
+        String preFixWord = word.substring(0, stringDividerPosition);
+        return bodyOfWord + preFixWord + posFix;
+    }
+
+    private int getStringDividerPosition(String word) {
+        if (beginsWithConsonantCluster(word)) {
+            if (word.startsWith("thr") || word.startsWith("sch")) {
+                return 3;
+            } else {
+                return 2;
+            }
+        } else {
+            int preFixPosition = word.indexOf("qu");
+            if (preFixPosition == 0) {
+                return 2;
+            } else if (preFixPosition == 1) {
+                return 3;
+            } else {
+                return 1;
+            }
+        }
+
+    }
+
+    private boolean beginsWithConsonantCluster(String word) {
+        return word.startsWith("ch") ||
+            word.startsWith("th") ||
+            word.startsWith("sch") ||
+            word.startsWith("rh");
+    }
+
+    private boolean wordStartsWithVowelSound(String wordToTranslate) {
+        return wordToTranslate.startsWith("xr") || wordToTranslate.startsWith("yt") || wordToTranslate.startsWith("a") || wordToTranslate.startsWith("e") || wordToTranslate.startsWith("i") || wordToTranslate.startsWith("o") || wordToTranslate.startsWith("u");
     }
 
 }
